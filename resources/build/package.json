@@ -5,20 +5,22 @@
     "description": "Create Pixel Art Programmatically",
     "author": "Geoffrey Mattie",
     "license": "MIT",
-    "main": "./js/main/indexESM.js",
+    "type": "module",
+    "main": "./js/main/index.js",
+    "engines": {
+        "node": ">=20"
+    },
     "scripts": {
-        "build": "electron ./js/main/indexESM.js",
-        "package-linux": "gulp package-linux",
-        "package-mac": "gulp package-mac",
-        "package-windows": "gulp package-windows"
+        "build": "electron .",
+        "package-linux": "node ./package.js linux",
+        "package-mac": "node ./package.js mac",
+        "package-windows": "node ./package.js windows"
     },
     "devDependencies": {
-        "electron": "^3.1.13",
-        "electron-packager": "^12.2.0",
-        "gulp": "^4.0.2"
+        "@electron/packager": "^20.3.0",
+        "electron": "^44.7.0"
     },
     "dependencies": {
-        "electron-window-state": "^5.0.3",
-        "esm": "^3.2.25"
+        "electron-window-state": "^5.0.3"
     }
 }

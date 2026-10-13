@@ -15,18 +15,16 @@ const SOURCE_DIR = path.resolve(__dirname, "../resources/source/");
  * Plugins
  * 
  */
-const BrowserSyncPlugin = require("browser-sync-webpack-plugin");
-const HTMLWebpackPlugin = require('html-webpack-plugin');
+const CSSMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const HTMLWebpackPlugin = require("html-webpack-plugin");
 const MiniCSSExtractPlugin = require("mini-css-extract-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
 /**
  * The Webpack configuration object contains the following keys:
  * 
  *     Entry:  An object that dictates where Webpack enters the application to start building the bundles.
  *     Module:  Options that determine how the different types of modules within a project will be treated.
- *     Optimization:  Executed optimizations when in Production mode.
+ *     Optimization:  Minimizers (JS via webpack defaults, CSS via CSSMinimizerPlugin) applied in Production mode.
  *     Output:  An object that dictates where Webpack will build the bundles.
  *     Plugins:  Customization of the Webpack build process.
  *     Stats:  Options that control the displayed bundle information during the build process.
@@ -73,23 +71,38 @@ const config = {
                     {
                         loader: "postcss-loader",
                         options: {
-                            config: {
-                                path: __dirname
+                            postcssOptions: {
+                                config: __dirname
                             }
                         }
                     },
-                    "sass-loader"
+                    {
+                        loader: "sass-loader",
+                        options: {
+                            sassOptions: {
+
+                                /*
+                                *   The SCSS modules share variables, mixins and @extend targets through
+                                *   global @import statements, which Dart Sass deprecates in favor of @use.
+                                */
+
+                                silenceDeprecations: ["import"]
+                            }
+                        }
+                    }
                 ]
             }
         ]
     },
     optimization: {
+
+        /*
+        *   The "..." keeps webpack's default JS minimizer (Terser) alongside the CSS minimizer.
+        */
+
         minimizer: [
-            new UglifyJsPlugin({
-                cache: true,
-                parallel: true
-            }),
-            new OptimizeCSSAssetsPlugin({})
+            "...",
+            new CSSMinimizerPlugin()
         ]
     },
     output: {
@@ -99,15 +112,24 @@ const config = {
     plugins: [
         new MiniCSSExtractPlugin({
             filename: "./css/[name].css"
-        }),
-        new BrowserSyncPlugin({
-            host: "localhost",
-            port: 3000,
-            server: {
-                baseDir: BUILD_DIR
-            }
         })
     ],
+    devServer: {
+        host: "localhost",
+        port: 3000,
+        static: {
+            directory: BUILD_DIR
+        },
+        devMiddleware: {
+
+            /*
+            *   Emit bundles to the /build folder so that the Electron application, which
+            *   loads from disk, always receives the latest compiled output.
+            */
+
+            writeToDisk: true
+        }
+    },
     stats: {
         entrypoints: false,
         children: false

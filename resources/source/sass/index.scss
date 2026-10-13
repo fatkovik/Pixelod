@@ -31,7 +31,7 @@ body {
 
                 &:not(:first-child) {
 
-                    margin-left: $SHARED_MARGIN / 2 - $SHARED_CONTROL_BUTTON_PADDING;
+                    margin-left: $SHARED_MARGIN * 0.5 - $SHARED_CONTROL_BUTTON_PADDING;
                 }
             }
 
@@ -129,7 +129,7 @@ body {
             #frameViewControls {
 
                 position: absolute;
-                margin: $SHARED_MARGIN / 2;
+                margin: $SHARED_MARGIN * 0.5;
                 z-index: 1;
                 pointer-events: none;
                 
@@ -141,7 +141,7 @@ body {
 
                     input:not(:first-child) {
 
-                        margin-left: $SHARED_MARGIN / 2 - $SHARED_CONTROL_BUTTON_PADDING;
+                        margin-left: $SHARED_MARGIN * 0.5 - $SHARED_CONTROL_BUTTON_PADDING;
                     }
 
                     #reflectHorizontal {
@@ -152,7 +152,7 @@ body {
 
                 #info {
                     
-                    margin-top: -($SHARED_MARGIN / 2);
+                    margin-top: -($SHARED_MARGIN * 0.5);
                     font-size: 0.8em;
                     div::before {
 

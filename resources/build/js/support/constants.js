@@ -44,6 +44,8 @@ Object.freeze(Electron);
  *     <li> APPLICATION_READY </li>
  *     <li> APPLICATION_WILL_QUIT </li>
  *     <li> APPLICATION_WINDOW_ALL_CLOSED </li>
+ *     <li> DIALOG_OPEN_IMAGE </li>
+ *     <li> DIALOG_SAVE_CLASS </li>
  *     <li> MENU_ABOUT </li>
  *     <li> MENU_EXAMPLE_BASIC </li>
  *     <li> MENU_EXAMPLE_HEARTS </li>
@@ -69,7 +71,6 @@ Object.freeze(Electron);
  *     <li> WINDOW_ENTER_FULL_SCREEN </li>
  *     <li> WINDOW_LEAVE_FULL_SCREEN </li>
  *     <li> WINDOW_MAXIMIZE </li>
- *     <li> WINDOW_NEW </li>
  *     <li> WINDOW_READY_TO_SHOW </li>
  *     <li> WINDOW_UNMAXIMIZE </li>
  * </ul>
@@ -84,6 +85,8 @@ const Event = {
     APPLICATION_READY: "ready",
     APPLICATION_WILL_QUIT: "will-quit",
     APPLICATION_WINDOW_ALL_CLOSED: "window-all-closed",
+    DIALOG_OPEN_IMAGE: "dialogOpenImage",
+    DIALOG_SAVE_CLASS: "dialogSaveClass",
     MENU_ABOUT: "menuAbout",
     MENU_EXAMPLE_BASIC: "menuExampleBasic",
     MENU_EXAMPLE_HEARTS: "menuExampleHearts",
@@ -109,7 +112,6 @@ const Event = {
     WINDOW_ENTER_FULL_SCREEN: "enter-full-screen",
     WINDOW_LEAVE_FULL_SCREEN: "leave-full-screen",
     WINDOW_MAXIMIZE: "maximize",
-    WINDOW_NEW: "new-window",
     WINDOW_READY_TO_SHOW: "ready-to-show",
     WINDOW_UNMAXIMIZE: "unmaximize",
 };
@@ -208,10 +210,10 @@ Object.freeze(Keys);
 const Label = {
     
     APPLICATION_TITLE: "Data Pixels Playground",
-    DIALOG_EXPORT_EXTENSION: ".js",
+    DIALOG_EXPORT_EXTENSION: "js",
     DIALOG_EXPORT_TITLE: "Save DataPixels.js File",
     DIALOG_EXPORT_TYPE: "JavaScript",
-    DIALOG_EXPORT_PATH: "~/DataPixels.js",
+    DIALOG_EXPORT_PATH: "DataPixels.js",
     DIALOG_IMPORT_TITLE: "Select Image File",
     DIALOG_IMPORT_TYPE: "Images",
     DIALOG_IMPORT: "Import",

@@ -32,7 +32,6 @@ export {
  *     <li> IPCRenderer </li>
  *     <li> NodeFileSystem </li>
  *     <li> NodePath </li>
- *     <li> RemoteDialog </li>
  * </ul>
  * 
  * @private
@@ -44,15 +43,8 @@ const M = {
     Electron: undefined,
     IPCRenderer: undefined,
     NodeFileSystem: undefined,
-    NodePath: undefined, 
-    RemoteDialog: undefined,
+    NodePath: undefined
 };
-
-/**
- * Initializes the application
- * 
- */
-App.init();
 
 /**
  * Determines if the current environment supports Electron, and if so, defines the module members accordingly.
@@ -68,10 +60,16 @@ if (isElectronEnvironment) {
     M.IPCRenderer = M.Electron.ipcRenderer;
     M.NodeFileSystem = window.require(C_IPC.Electron.NODE_FILE_SYSTEM);
     M.NodePath = window.require(C_IPC.Electron.NODE_PATH);
-    M.RemoteDialog = M.Electron.remote.dialog;
 
     initElectronInterface();
 }
+
+/**
+ * Initializes the application.  This must occur after the module members above are defined
+ * because the application modules call back into the exported functions of this module.
+ *
+ */
+App.init();
 
 /**
  * @description Initializes the Electron interface for the application
@@ -87,31 +85,21 @@ function initElectronInterface() {
         M.IPCRenderer.on(C_IPC.Event.REQUEST_ORIENTATION, updateElectronOrientationMenuItems);
         M.IPCRenderer.on(C_IPC.Event.REQUEST_FRAME_VIEW_HAS_IMAGE, updateElectronFrameViewMenuItems);
         
-        M.IPCRenderer.on(C_IPC.Event.MENU_IMPORT_IMAGE_FILE, () => {
+        M.IPCRenderer.on(C_IPC.Event.MENU_IMPORT_IMAGE_FILE, async () => {
 
-            M.RemoteDialog.showOpenDialog({
+            const filePath = await M.IPCRenderer.invoke(C_IPC.Event.DIALOG_OPEN_IMAGE, [C.Type.IMAGE_JPG, C.Type.IMAGE_PNG, C.Type.IMAGE_GIF]);
 
-                title: C_IPC.Label.DIALOG_IMPORT_TITLE,
-                buttonLabel: C_IPC.Label.DIALOG_IMPORT,
-                properties: [C_IPC.Electron.DIALOG_OPEN_FILE],
-                filters: [{name: C_IPC.Label.DIALOG_IMPORT_TYPE, extensions: [C.Type.IMAGE_JPG, C.Type.IMAGE_PNG, C.Type.IMAGE_GIF]}]
-            },
-            (fileInfo) => {
+            if (!filePath) return;
 
-                if (!fileInfo) return;
+            M.NodeFileSystem.readFile(filePath, (error, data) => {
 
-                const filePath = fileInfo[0];
+                if (error) {
 
-                M.NodeFileSystem.readFile(filePath, (error, data) => {
+                    return App.setErrorMessage(error);
+                }
 
-                    if (error) {
-
-                        return App.setErrorMessage(error);
-                    }
-
-                    const blob = new Blob([data]);
-                    File.readImageFile(blob, M.NodePath.basename(filePath));
-                });
+                const blob = new Blob([data]);
+                File.readImageFile(blob, M.NodePath.basename(filePath));
             });
         });
         
@@ -150,25 +138,18 @@ function initElectronInterface() {
  * @function
  *  
  */
-function exportClassFile(dataPixelsClassCode) {
+async function exportClassFile(dataPixelsClassCode) {
 
-    M.RemoteDialog.showSaveDialog({
+    const fileName = await M.IPCRenderer.invoke(C_IPC.Event.DIALOG_SAVE_CLASS);
 
-        title: C_IPC.Label.DIALOG_EXPORT_TITLE,
-        defaultPath: C_IPC.Label.DIALOG_EXPORT_PATH,
-        filters: [{name: C_IPC.Label.DIALOG_EXPORT_TYPE, extensions: [C_IPC.Label.DIALOG_EXPORT_EXTENSION]}]
-    },
-    (fileName) => {
+    if (!fileName) return;
 
-        if (!fileName) return;
+    M.NodeFileSystem.writeFile(fileName, dataPixelsClassCode, (error) => {
 
-        M.NodeFileSystem.writeFile(fileName, dataPixelsClassCode, (error) => {
+        if (error) {
 
-            if (error) {
-
-                App.setErrorMessage(error);
-            }
-        });
+            App.setErrorMessage(error);
+        }
     });
 }
 

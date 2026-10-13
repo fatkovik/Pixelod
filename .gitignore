@@ -86,3 +86,11 @@ $RECYCLE.BIN/
 
 # Tasks & Todo Lists
 *.todo
+# Generated build output
+resources/build/index.html
+resources/build/css/*
+resources/build/js/renderer/*
+resources/build/releases/*
+!resources/build/css/.keep
+!resources/build/js/renderer/.keep
+!resources/build/releases/.keep
