@@ -5,6 +5,10 @@ Fork of gmattie's **Data-Pixels** (`origin` = `fatkovik/Pixelod`, MIT, v1.1.0). 
 1. **`DataPixels.js`** — a tiny ES2015 class: takes a 2D array of `"R, G, B[, A]"` strings + a pixel size and exposes `.canvas` / `.image` / `.imageData`.
 2. **Data Pixels Playground** — an Electron desktop app (code editor + live preview iframe) for writing/running DataPixels code and for converting image files (png/jpg/gif) into `pixelData` code.
 
+## Rules for Claude
+
+- **Do NOT commit, create/switch branches, stage, stash, reset, push, or perform any other git operation unless the user explicitly says so.** Edit working-tree files only; read-only commands (`git status`, `git diff`, `git log`) are fine.
+
 ## Layout
 
 ```
