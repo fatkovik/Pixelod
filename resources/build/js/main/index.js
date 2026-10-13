@@ -1,8 +1,11 @@
 //Imports
-import { app, BrowserWindow, globalShortcut, ipcMain, Menu, shell } from "electron";
+import { app, BrowserWindow, dialog, globalShortcut, ipcMain, Menu, shell } from "electron";
+import { fileURLToPath } from "url";
 import * as C from "../support/constants.js";
 import electronWindowState from "electron-window-state";
 import path from "path";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * @description The <strong>index.js</strong> module is the entry point for the application and contains Inter-Process Communication (IPC) logic for Electron.
@@ -10,6 +13,7 @@ import path from "path";
  * @requires constants
  * @requires electronWindowState
  * @requires path
+ * @requires url
  * @module
  * 
  */
@@ -103,7 +107,17 @@ function createWindow() {
         title: C.Label.APPLICATION_TITLE,
         icon: path.join(__dirname, C.FileSource.ICON),
         show: false,
-        backgroundColor: "#000"
+        backgroundColor: "#000",
+        webPreferences: {
+
+            /*
+             *  The renderer accesses Electron, "fs" and "path" directly through window.require.
+             *  Sub frames (the code Frame View) do not receive Node integration.
+             */
+
+            nodeIntegration: true,
+            contextIsolation: false
+        }
     });
     
     M.Window.once(C.Event.WINDOW_READY_TO_SHOW, () => M.Window.show());
@@ -207,7 +221,7 @@ function createMenu() {
         
         menuTemplate.unshift({
 
-            label: app.getName(),
+            label: app.name,
 
             submenu: [
 
@@ -349,10 +363,36 @@ function registerIPCEvents() {
         M.Window.webContents.send(C.Event.REQUEST_ORIENTATION);
     });
 
-    M.Window.webContents.on(C.Event.WINDOW_NEW, (event, url) => {
+    M.Window.webContents.setWindowOpenHandler(({ url }) => {
 
-        event.preventDefault();
         shell.openExternal(url);
+
+        return { action: "deny" };
+    });
+
+    ipcMain.handle(C.Event.DIALOG_OPEN_IMAGE, async (event, extensions) => {
+
+        const { canceled, filePaths } = await dialog.showOpenDialog(M.Window, {
+
+            title: C.Label.DIALOG_IMPORT_TITLE,
+            buttonLabel: C.Label.DIALOG_IMPORT,
+            properties: [C.Electron.DIALOG_OPEN_FILE],
+            filters: [{ name: C.Label.DIALOG_IMPORT_TYPE, extensions }]
+        });
+
+        return (canceled) ? null : filePaths[0];
+    });
+
+    ipcMain.handle(C.Event.DIALOG_SAVE_CLASS, async () => {
+
+        const { canceled, filePath } = await dialog.showSaveDialog(M.Window, {
+
+            title: C.Label.DIALOG_EXPORT_TITLE,
+            defaultPath: path.join(app.getPath("documents"), C.Label.DIALOG_EXPORT_PATH),
+            filters: [{ name: C.Label.DIALOG_EXPORT_TYPE, extensions: [C.Label.DIALOG_EXPORT_EXTENSION] }]
+        });
+
+        return (canceled) ? null : filePath;
     });
 }
 
